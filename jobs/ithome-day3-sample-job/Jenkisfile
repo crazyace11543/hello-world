@@ -1,11 +1,20 @@
-// 範例 Jenkinsfile
 pipeline {
-    agent any // 不指定執行 agent
-    stages { // 開始宣告 Pipeline 流程
-        stage('ithome 2022 pipeline') {
-            // 行為宣告
-            steps {
-                echo 'Hello Github ~'
+    agent any
+    stages {
+        stage ("Check www.example.com response code") {
+            steps{
+                sh  '''
+                    TOKEN="test-token"
+                    GROUP_ID="-000000000"
+                    CODE=$(curl -o /dev/null -s -w %{http_code} www.example.com)
+                    
+                    
+                    if [ "${CODE}" != "200" ]; then
+                      message="www.example.com response code != 200."
+                      curl -X GET "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+                          -d "chat_id=${GROUP_ID}&text=${message}"
+                    fi                
+                '''
             }
         }
     }
